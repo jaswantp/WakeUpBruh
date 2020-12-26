@@ -17,8 +17,8 @@
  * more details.
  */
 
+#include <atomic>
 #include <chrono>
-#include <condition_variable>
 #include <future>
 #ifdef WUB_LOG_TIMER
 #include <iostream>
@@ -95,10 +95,9 @@ struct Timer
     while (this->m_Threads[timerId].wait_for(std::chrono::seconds(0)) !=
            std::future_status::ready) {
       std::scoped_lock lk(m_Mtx);
-      m_Terminate[timerId] = true;
+      m_Terminate[timerId].store(true);
       m_Stale.insert(timerId);
     }
-    m_Cv.notify_all();
   }
 
   /**
@@ -122,8 +121,7 @@ struct Timer
   }
 
 private:
-  std::condition_variable m_Cv;
-  std::map<int, bool> m_Terminate;
+  std::map<int, std::atomic_bool> m_Terminate;
   std::mutex m_Mtx;
   std::unordered_set<int> m_Zombies, m_Stale;
   std::vector<std::future<void>> m_Threads;
@@ -138,27 +136,29 @@ private:
     using namespace std;
     static_assert(is_arithmetic_v<IntervalT>);
 
-    auto time = chrono::duration<IntervalT, milli>(interval);
     {
       scoped_lock lk(m_Mtx);
-      m_Terminate[timerId] = false;
+      m_Terminate[timerId].store(false);
 #ifdef WUB_LOG_TIMER
       cout << "Init: " << timerId << " (" << interval << "ms)\n";
 #endif // WUB_LOG_TIMER
     }
 
     do {
-      unique_lock<mutex> lk(m_Mtx);
 #ifdef WUB_LOG_TIMER
       cout << "Run : " << timerId << " (" << interval << "ms)\n";
 #endif // WUB_LOG_TIMER
-      bool killed =
-        m_Cv.wait_for(lk, time, [&]() { return m_Terminate[timerId]; });
+      IntervalT t = interval;
+      while (t >= 0 && !m_Terminate[timerId].load()) {
+        this_thread::sleep_for(1ms);
+        --t;
+      }
+      bool killed = t > 0;
 #ifdef WUB_LOG_TIMER
       cout << (killed ? "Killed " : "Finished ") << timerId << "\n";
 #endif // WUB_LOG_TIMER
       callback(args...);
-    } while (!(oneShot || m_Terminate[timerId]));
+    } while (!(oneShot || m_Terminate[timerId].load()));
 
     if (m_Stale.find(timerId) == m_Stale.end())
       if (oneShot)
