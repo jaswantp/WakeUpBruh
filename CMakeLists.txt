@@ -22,11 +22,13 @@ endif ()
 
 ### Demo
 if (${WUB_BUILD_DEMO})
+  find_package(Threads)
   add_executable(wub)
   target_sources(wub PRIVATE "${PROJECT_SOURCE_DIR}/wub.cpp")
-  target_link_libraries(wub PRIVATE ${PROJECT_NAME})
+  target_link_libraries(wub PRIVATE ${PROJECT_NAME} Threads::Threads)
   target_compile_features(wub PRIVATE cxx_std_17)
   if (MSVC)
     target_compile_options(wub PRIVATE "/Zc:__cplusplus")
   endif ()
+
 endif ()

@@ -13,6 +13,8 @@ function (add_header_test testname)
     add_executable (${testname})
     target_sources (${testname} PRIVATE ${ARG_SOURCES})
     
+    find_package(Threads)
+    target_link_libraries(${testname} PUBLIC Threads::Threads)
     if(ARG_DEPENDS)
       target_link_libraries(${testname} PUBLIC ${ARG_DEPENDS})
     endif()
