@@ -1,4 +1,5 @@
 # Yet another C++ Timer library.
+[![Actions Status](https://github.com/jaswantp/WakeUpBruh/workflows/Build%20and%20Test/badge.svg)](https://github.com/jaswantp/GeometricPredicates/actions)
 
 _Claims_: _versatile_, _asynchronous_, _barebones_, _header-only_, _no frills_ C++ timer library.
  _like many other repos you'd find elsewhere_.
@@ -11,7 +12,7 @@ Use this to wake up stuff in your _supposedly_ _purposeful_ C++ project.
  - C++ _Lambdas_ w/ arbitrary parameters.
 - _Kill_ a timer
 
-#### Poor Documentation
+#### Poor man's Documentation
 _struct Timer_: 
 
     1. Adds a timer and schedules for asynchronous run.
