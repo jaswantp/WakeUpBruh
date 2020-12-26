@@ -1,10 +1,12 @@
 # Yet another C++ Timer library.
 [![Actions Status](https://github.com/jaswantp/WakeUpBruh/workflows/Build%20and%20Test/badge.svg)](https://github.com/jaswantp/GeometricPredicates/actions)
 
-_Claims_: _versatile_, _asynchronous_, _barebones_, _header-only_, _no frills_ C++ timer library.
+_Claims_: _versatile_, _asynchronous_, _barebones_, _header-only_, _no frills_ C++ timer library,
  _like many other repos you'd find elsewhere_.
 
-Use this to wake up stuff in your _supposedly_ _purposeful_ C++ project.
+Use this to wake up stuff in your _supposedly_ _purposeful_ C++ project. 
+
+Jk, lol don't. There's a serious flaw in this code.
 
 #### Supports: 
 - Callback on _time-out_ / on _kill_
@@ -92,3 +94,8 @@ Finished 2
 
  Timer: 2| Wake The Fuck Up Bruhh ._. fu
 ```
+
+### Flaw
+- As timers are added, run and eventually killed/zombified, the internal vector of threads grows monotonously 
+with total disregard for system memory. 
+- Eventually, the container exceeds `std::vector::max_size()`. Ideally, this can be solved by invoking garbage-collection; erase `stale`/`zombie` timers. Plz do it yourself :)
