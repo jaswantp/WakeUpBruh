@@ -42,7 +42,7 @@ main(int argc, char* argv[])
 {
   Timer timer;
   int oneshot = timer.add(1000, true, ignore);
-  int repeating = timer.add(1000, false, ignore);
+  int repeating = timer.add(1000, false, []() {});
 
   bool result =
     testIsNotZombie(oneshot, timer, "Timer upon creation is not a zombie.");
