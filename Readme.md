@@ -1,23 +1,22 @@
-# Yet another C++ Timer library.
+# Yet another C++ Timer.
 [![Actions Status](https://github.com/jaswantp/WakeUpBruh/workflows/Build%20and%20Test/badge.svg)](https://github.com/jaswantp/GeometricPredicates/actions)
 
-_Claims_: _versatile_, _asynchronous_, _barebones_, _header-only_, _no frills_ C++ timer library,
- _like many other repos you'd find elsewhere_.
+_Claims_: _versatile_, _asynchronous_, _barebones_, _header-only_, _no frills_ C++ timer exactly _like many other repos you'd find elsewhere_!
 
-Use this to wake up stuff in your _supposedly_ _purposeful_ C++ project. 
+Use this to wake up stuff in your _supposedly_ _purposeful_ C++ project!
 
-Jk, lol don't. There's a serious flaw in this code.
+Jk, lol; don't use in production There's a serious flaw in this code.
 
-#### Supports: 
-- Callback on _time-out_ / on _kill_
- - Regular functions w/ arbitrary arguments ([_Varaiadic template parameter packs_](https://eli.thegreenplace.net/2014/variadic-templates-in-c/))
- - C++ _Lambdas_ w/ arbitrary parameters.
-- _Kill_ a timer
+#### Supported: 
+- Callback on _time-out_ / _kill_
+  - Regular functions w/ arbitrary arguments ([_Varaiadic template parameter packs_](https://eli.thegreenplace.net/2014/variadic-templates-in-c/))
+  - C++ _Lambdas_
+- Force _Kill_ timers.
 
 #### Poor man's Documentation
-_struct Timer_: 
-
-    1. Adds a timer and schedules for asynchronous run.
+``` c++
+struct Timer: 
+    1. Fire an asynchronous timer and return a unique identifier
       add(IntervalT interval,
           bool oneShot,
           OnFinishFunc callback,
@@ -25,12 +24,12 @@ _struct Timer_:
     - interval: duration after which timer should 'timeout'
     - oneShot : fire once and be done(true) or repeat unless killed (false)
     - callback: function to call on kill/time out
-    - args    : function arguments to give callback func
-    - return  : timer id
+    - args    : arguments passed to callback func
+    - return  : timerId
 
     2. Kill an existing timer.
       kill(int timerId) -> void
-    - timerId: A valid timer id.
+    - timerId: A valid timerId.
 
     3. When a timer has timed-out but not yet killed (oneShot)
       isZombie(int timerId) -> bool
@@ -39,37 +38,37 @@ _struct Timer_:
 
     4. When a timer is killed (oneShot/repeating)
       isStale(int timerId) -> bool
-    - timerId: A valid timer id.
+    - timerId: A valid timerId.
     - return  : true if stale, else false
-
+```
 #### Modes
 A. _OneShot_: Fire once and become a zombie upon time-out.
-```
+```c++
 #include "Timer.hpp"
 
 static void wakeUpCall(...){...}
 
 Timer t;
-t.add(1000, true, wakeUpCall, ...)
-t.add(1000, true, [...](...){...}, ...) // w/ lambda
+t.add(1000ms, true, wakeUpCall, ...)
+t.add(1s, true, [...](...){...}, ...) // w/ lambda
 ...
 ```
 
 B. _Repeating_: Fire and stay alive unless killed.
-```
+```c++
 #include "Timer.hpp"
 
 static void wakeUpCall(...){...}
 
 Timer t;
-t.add(1000, false, wakeUpCall, ...)
-t.add(1000, false, [...](...){...}, ...) // w/ lambda
+t.add(1000ms, false, wakeUpCall, ...)
+t.add(1s, false, [...](...){...}, ...) // w/ lambda
 ...
 ```
 
 ### Uninteresting demo
 
-``` 
+``` shell
 $ ./wub
 Set : 0 (6000ms)
 Set : 1 (4000ms)
@@ -96,6 +95,6 @@ Finished 2
 ```
 
 ### Flaw
-- As timers are added, run and eventually killed/zombified, the internal vector of threads grows monotonously 
+- As timers are added, run and eventually killed/zombified, the internal vector of threads grows in size 
 with total disregard for system memory. 
-- Eventually, the container exceeds `std::vector::max_size()`. Ideally, this can be solved by invoking garbage-collection; erase `stale`/`zombie` timers. Plz do it yourself :)
+- Eventually, the container exceeds `std::vector::max_size()`. Ideally, one should invoking garbage-collection; erase `stale`/`zombie` timers. Plz do it yourself :)

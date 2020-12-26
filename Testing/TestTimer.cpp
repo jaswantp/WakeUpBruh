@@ -2,7 +2,7 @@
 #include "testing.h"
 
 static void
-ignore()
+dummyFunc()
 {}
 
 bool
@@ -40,15 +40,15 @@ testIsNotStale(int& id, const Timer& timer, const char* message)
 int
 main(int argc, char* argv[])
 {
+  using namespace std;
   Timer timer;
-  int oneshot = timer.add(1000, true, ignore);
-  int repeating = timer.add(1000, false, []() {});
+  int oneshot = timer.add(1000ms, true, dummyFunc);
+  int repeating = timer.add(1s, false, []() {});
 
   bool result =
     testIsNotZombie(oneshot, timer, "Timer upon creation is not a zombie.");
   result &= testIsNotStale(oneshot, timer, "Timer upon creation is not stale.");
 
-  using namespace std;
   this_thread::sleep_for(2000ms);
   result &=
     testIsZombie(oneshot, timer, "Timer post time-out becomes a zombie.");
