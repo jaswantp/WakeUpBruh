@@ -17,6 +17,7 @@
   * more details.
   */
 
+#include <chrono>
 #include <condition_variable>
 #include <future>
 #ifdef WUB_LOG_TIMER

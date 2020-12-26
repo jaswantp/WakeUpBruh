@@ -65,7 +65,7 @@ t.add(1000, false, [...](...){...}, ...) // w/ lambda
 ...
 ```
 
-### Useless demo
+### Uninteresting demo
 
 ``` 
 $ ./wub

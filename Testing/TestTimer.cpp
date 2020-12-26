@@ -48,18 +48,16 @@ main(int argc, char* argv[])
     testIsNotZombie(oneshot, timer, "Timer upon creation is not a zombie.");
   result &= testIsNotStale(oneshot, timer, "Timer upon creation is not stale.");
 
-  {
-    using namespace std;
-    std::this_thread::sleep_for(2000ms);
-    result &=
-      testIsZombie(oneshot, timer, "Timer post time-out becomes a zombie.");
-    result &=
-      testIsNotStale(repeating, timer, "Timer post time-out is not stale .");
+  using namespace std;
+  this_thread::sleep_for(2000ms);
+  result &=
+    testIsZombie(oneshot, timer, "Timer post time-out becomes a zombie.");
+  result &=
+    testIsNotStale(repeating, timer, "Timer post time-out is not stale .");
 
-    timer.kill(repeating);
-    result &= testIsStale(repeating, timer, "Timer becomes stale when killed.");
-    result &=
-      testIsNotZombie(repeating, timer, "Timer is not zombie when killed.");
-  }
+  timer.kill(repeating);
+  result &= testIsStale(repeating, timer, "Timer becomes stale when killed.");
+  result &=
+    testIsNotZombie(repeating, timer, "Timer is not zombie when killed.");
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
