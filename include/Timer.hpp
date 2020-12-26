@@ -9,13 +9,13 @@
  * See the COPYING file for more details.
  */
 
- /**
-  * This program is free software. It comes without any warranty,
-  * to the extent permitted by applicable law.You can redistribute it and / or
-  * modify it under the terms of the Do What The Fuck You Want To Public
-  * License, Version 2, as published by Sam Hocevar.See http://www.wtfpl.net/ for
-  * more details.
-  */
+/**
+ * This program is free software. It comes without any warranty,
+ * to the extent permitted by applicable law.You can redistribute it and / or
+ * modify it under the terms of the Do What The Fuck You Want To Public
+ * License, Version 2, as published by Sam Hocevar.See http://www.wtfpl.net/ for
+ * more details.
+ */
 
 #include <chrono>
 #include <condition_variable>
@@ -30,23 +30,36 @@
 
 struct Timer
 {
+  template<typename Rep,
+           typename Period,
+           typename OnFinishFunc,
+           typename... Args>
+  inline int add(const std::chrono::duration<Rep, Period>& interval,
+                 bool oneShot,
+                 OnFinishFunc callback,
+                 Args... args)
+  {
+    using namespace std::chrono;
+    const auto msec = duration_cast<milliseconds>(interval);
+    return add(msec.count(), oneShot, callback, args...);
+  }
   /**
    * @brief Instantiate a timer to run for said interval.
    * Calls a callback when killed/timed out.
-   * @param interval: duration after which timer should 'timeout'
+   * @param interval: duration (ms) after which timer should 'timeout'
    * @param oneShot : fire once and be done or repeat after 'timeout'
    * @param callback: function to call on kill/time out
    * @param ...args : function arguments to give callback func
    * @return timer id.
    */
   template<typename IntervalT,
-    typename = std::enable_if_t<std::is_arithmetic_v<IntervalT>>,
-    typename OnFinishFunc,
-    typename... Args>
-    inline int add(IntervalT interval,
-      bool oneShot,
-      OnFinishFunc callback,
-      Args... args)
+           typename = std::enable_if_t<std::is_arithmetic_v<IntervalT>>,
+           typename OnFinishFunc,
+           typename... Args>
+  inline int add(IntervalT interval,
+                 bool oneShot,
+                 OnFinishFunc callback,
+                 Args... args)
   {
     int timerId = 0;
     {
@@ -55,13 +68,13 @@ struct Timer
       timerId = static_cast<int>(m_Threads.size());
       m_Threads.emplace_back(
         async(launch::async,
-          &Timer::run<IntervalT, OnFinishFunc, Args...>,
-          this,
-          timerId,
-          interval,
-          oneShot,
-          callback,
-          forward<Args>(args)...));
+              &Timer::run<IntervalT, OnFinishFunc, Args...>,
+              this,
+              timerId,
+              interval,
+              oneShot,
+              callback,
+              forward<Args>(args)...));
 #ifdef WUB_LOG_TIMER
       cout << "Set : " << timerId << " (" << interval << "ms)\n";
 #endif // WUB_LOG_TIMER
@@ -76,9 +89,11 @@ struct Timer
   inline void kill(int timerId)
   {
     if ((timerId >= m_Threads.size()) ||
-      (m_Stale.find(timerId) != m_Stale.end()))
+        (m_Stale.find(timerId) != m_Stale.end()))
       return;
-    {
+
+    while (this->m_Threads[timerId].wait_for(std::chrono::seconds(0)) !=
+           std::future_status::ready) {
       std::scoped_lock lk(m_Mtx);
       m_Terminate[timerId] = true;
       m_Stale.insert(timerId);
@@ -90,7 +105,7 @@ struct Timer
    * @brief When a timer has timed-out but not yet killed (oneShot)
    * @param timerId A valid timerId
    * @return true if zombie, else false
-  */
+   */
   inline bool isZombie(int timerId) const
   {
     return m_Zombies.find(timerId) != m_Zombies.end();
@@ -115,10 +130,10 @@ private:
 
   template<typename IntervalT, typename OnFinishFunc, typename... Args>
   inline void run(int timerId,
-    IntervalT interval,
-    bool oneShot,
-    OnFinishFunc callback,
-    Args... args)
+                  IntervalT interval,
+                  bool oneShot,
+                  OnFinishFunc callback,
+                  Args... args)
   {
     using namespace std;
     static_assert(is_arithmetic_v<IntervalT>);
