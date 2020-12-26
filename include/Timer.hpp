@@ -85,11 +85,21 @@ struct Timer
     m_Cv.notify_all();
   }
 
+  /**
+   * @brief When a timer has timed-out but not yet killed (oneShot)
+   * @param timerId A valid timerId
+   * @return true if zombie, else false
+  */
   inline bool isZombie(int timerId) const
   {
     return m_Zombies.find(timerId) != m_Zombies.end();
   }
 
+  /**
+   * @brief When a timer is killed (oneShot/repeating)
+   * @param timerId A valid timerId
+   * @return true if stale, else false
+   */
   inline bool isStale(int timerId) const
   {
     return m_Stale.find(timerId) != m_Stale.end();
