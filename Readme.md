@@ -97,4 +97,4 @@ Finished 2
 ### Flaw
 - As timers are added, run and eventually killed/zombified, the internal vector of threads grows in size 
 with total disregard for system memory. 
-- Eventually, the container exceeds `std::vector::max_size()`. Ideally, one should invoking garbage-collection; erase `stale`/`zombie` timers. Plz do it yourself :)
+- Eventually, the container exceeds `std::vector::max_size()`. Ideally, do garbage-collection; erase `stale`/`zombie` timers. Plz do it yourself :)
