@@ -1,5 +1,5 @@
 # Yet another C++ Timer.
-[![Actions Status](https://github.com/jaswantp/WakeUpBruh/workflows/Build%20and%20Test/badge.svg)](https://github.com/jaswantp/GeometricPredicates/actions)
+[![Actions Status](https://github.com/jaswantp/WakeUpBruh/workflows/Build%20and%20Test/badge.svg)](https://github.com/jaswantp/WakeUpBruh/actions)
 
 Use it to wake up stuff in your _supposedly_ _purposeful_ C++ project!
 
