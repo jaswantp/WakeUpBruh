@@ -52,8 +52,8 @@ struct Timer
   {
     using namespace std;
     auto thr = thread(
-      [this, interval, oneShot](typename decay_t<F>&& func,
-                                typename decay_t<A>&&... args) {
+      [this, interval, oneShot](decay_t<F>&& func,
+                                decay_t<A>&&... args) {
         // wait here
         fut.get();
         // ready
@@ -62,7 +62,7 @@ struct Timer
         // run
         do {
           this_thread::sleep_for(interval);
-          func(std::move(args)...);
+          func(args...);
         } while (!(oneShot || m_Abort.load()));
         // exit
         m_Done.store(true);
