@@ -52,8 +52,7 @@ struct Timer
   {
     using namespace std;
     auto thr = thread(
-      [this, interval, oneShot](decay_t<F>&& func,
-                                decay_t<A>&&... args) {
+      [&, this, interval, oneShot](decay_t<F>&& func, decay_t<A>&&... args) {
         // wait here
         fut.get();
         // ready
@@ -67,8 +66,8 @@ struct Timer
         // exit
         m_Done.store(true);
       },
-      std::forward<F>(func),
-      std::forward<A>(args)...);
+      func,
+      args...);
 
     // get that thread's id.
     m_Tid = thr.get_id();
@@ -121,9 +120,9 @@ struct TimerCollection
    */
   template<typename Rep, typename Period, typename F, typename... A>
   inline std::size_t create(const std::chrono::duration<Rep, Period>& interval,
-                         bool oneShot,
-                         F func,
-                         A&&... args)
+                            bool oneShot,
+                            F&& func,
+                            A&&... args)
   {
     m_Timers.emplace_back(new Timer);
     auto m_Tid = m_Timers.back()->start(interval, oneShot, func, args...);

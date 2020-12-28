@@ -28,20 +28,18 @@ main(int argc, char* argv[])
 {
   using namespace std;
   TimerCollection timers;
-  auto oneshotSmol = timers.create(10us, true, dummyFunc);
-  auto repeatable = timers.create(10us, false, []() {});
-  auto oneshotBig = timers.create(10us, true, []() {});
+  auto oneshotSmol = timers.create(100ms, true, dummyFunc);
+  auto repeatable = timers.create(100ms, false, []() {});
+  auto oneshotBig = timers.create(100ms, true, []() {});
 
   bool result =
-    testExists(oneshotSmol, timers, "exists upon creation. (oneshotSmol)");
-  result &=
     testExists(repeatable, timers, "exists upon creation. (repeatable)");
 
   timers.kill(oneshotBig);
   result &= testDoesNotExist(
     oneshotBig, timers, "when killed, it ceases to exist. (oneshotBig)");
 
-  this_thread::sleep_for(20us);
+  this_thread::sleep_for(200ms);
   result &= testDoesNotExist(
     oneshotSmol, timers, "post time-out, it ceases to exist. (oneshotSmol)");
 
